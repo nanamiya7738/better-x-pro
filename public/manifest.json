@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "better-x-pro",
+  "version": "1.0.0",
+  "description": "X PRO を少しだけマシにするChrome拡張機能",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://tweetdeck.twitter.com/*",
+        "https://pro.twitter.com/*"
+      ],
+      "js": [
+        "main.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "icons": {
+    "16": "./assets/icon.png",
+    "48": "./assets/icon.png",
+    "128": "./assets/icon.png"
+  }
+}
