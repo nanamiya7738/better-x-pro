@@ -1,6 +1,6 @@
 {
   "name": "better-x-pro",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "X PRO を少しだけマシにするChrome拡張機能",
   "private": true,
   "packageManager": "pnpm@8.3.1",

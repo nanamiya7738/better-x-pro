@@ -1,129 +1,69 @@
-import { querySelector } from "./query"
-import { TimelineData } from "type/types"
-import Cell from "./cell"
-import Filter from "./filter"
-import OptionMenu from "./optionMenu"
+import Timeline from "./components/timeline"
+import { querySelector } from "./components/query"
 import * as util from "./utility"
 
-const timelineDataList: TimelineData[] = []
-let timerDisplaySensitiveMedia: NodeJS.Timeout
+const timelineList: Timeline[] = []
+let url = ""
+let preActiveElement: Element
 
+url = window.location.href
+checkPageReload()
 setTimelineData()
 
-let url = ""
-setInterval(() => {
+function checkPageReload() {
+  setInterval(() => {
+    checkReload()
+    checkFormActive()
+  }, 1000)
+}
+
+function checkReload() {
   if (url !== window.location.href) {
     util.consoleLog("main process stop and reload timeline")
-    clearInterval(timerDisplaySensitiveMedia)
+
+    clearTimelineData()
     setTimelineData()
     url = window.location.href
   }
-}, 1000)
+}
+
+function checkFormActive() {
+  const activeElement = document?.activeElement
+  if (activeElement && preActiveElement !== activeElement) {
+    // const dataTestId = activeElement.getAttribute('data-testid')
+    preActiveElement = activeElement
+  }
+}
+
+function clearTimelineData() {
+  timelineList.splice(0, timelineList.length)
+}
 
 function setTimelineData() {
+  const mainProcess = () => {
+    document.querySelectorAll<HTMLElement>(querySelector.quaryTimeline)
+      ?.forEach((timeline, i) => {
+        const timelineDetail = timeline.children.item(0)
+        const timelineHeadermainTitle = timelineDetail?.children
+          .item(0)?.querySelector("div[data-testid='root'] h1 > span")
+        const timelineHeadersubTitle = timelineDetail?.children
+          .item(0)?.querySelector("div[data-testid='root'] h2 > span > span")
+
+        const mainTitle = timelineHeadermainTitle?.textContent
+        const subTitle = timelineHeadersubTitle?.textContent
+        if (mainTitle && subTitle) {
+          timelineList.push(new Timeline(mainTitle, subTitle, timeline))
+        }
+      })
+    util.consoleLog("main process strat......")
+  }
+
   util.startProcessAfterCreateElement(
     () => document.querySelectorAll<HTMLElement>(querySelector.quaryTimeline),
     () =>
       util.startProcessAfterRemoveElement(
-        () =>
-          document.querySelectorAll<HTMLElement>(
-            querySelector.quaryProgressbar
-          ),
-        () => {
-          document
-            .querySelectorAll<HTMLElement>(querySelector.quaryTimeline)
-            ?.forEach((timeline, i) => {
-              const timelineDetail = timeline.children.item(0)
-
-              const timelineHeaderTitle1 = timelineDetail?.children
-                .item(0)
-                ?.querySelector("div[data-testid='root'] h1 > span")
-              const timelineHeaderTitle2 = timelineDetail?.children
-                .item(0)
-                ?.querySelector("div[data-testid='root'] h2 > span > span")
-
-              const title1 = timelineHeaderTitle1?.textContent
-              const title2 = timelineHeaderTitle2?.textContent
-
-              const setAutoDisplaySensitiveMedia =
-                window.localStorage.getItem(
-                  `BXP_${title1}_${title2}_setAutoDisplaySensitiveMedia`
-                ) ?? "true"
-
-              util.consoleLog(
-                `BXP_${title1}_${title2}_setAutoDisplaySensitiveMedia  ${setAutoDisplaySensitiveMedia}`
-              )
-
-              const setFilterIncludeMedia =
-                window.localStorage.getItem(
-                  `BXP_${title1}_${title2}_setFilterIncludeMedia`
-                ) ?? "false"
-
-              util.consoleLog(
-                `BXP_${title1}_${title2}_setFilterIncludeMedia  ${setFilterIncludeMedia}`
-              )
-
-              if (title1 && title2) {
-                const listNotificationArticle = timeline.querySelectorAll(
-                  `${querySelector.quaryArticleCell}  article[role='article'][data-testid='notification']`
-                )
-                const listTweetArticle = timeline.querySelectorAll(
-                  `${querySelector.quaryArticleCell} article[role='article'][data-testid='tweet']`
-                )
-
-                if (listNotificationArticle.length > 0) {
-                  timelineDataList.push({
-                    timelineTitle1: title1,
-                    timelineTitle2: title2,
-                    timelineNode: timeline,
-                    timelineType: "notification",
-                    setAutoDisplaySensitiveMedia:
-                      setAutoDisplaySensitiveMedia === "true",
-                    setFilterIncludeMedia: setFilterIncludeMedia === "true"
-                  })
-                } else if (listTweetArticle.length > 0) {
-                  timelineDataList.push({
-                    timelineTitle1: title1,
-                    timelineTitle2: title2,
-                    timelineNode: timeline,
-                    timelineType: "tweet",
-                    setAutoDisplaySensitiveMedia:
-                      setAutoDisplaySensitiveMedia === "true",
-                    setFilterIncludeMedia: setFilterIncludeMedia === "true"
-                  })
-                } else {
-                  timelineDataList.push({
-                    timelineTitle1: title1,
-                    timelineTitle2: title2,
-                    timelineNode: timeline,
-                    timelineType: "other",
-                    setAutoDisplaySensitiveMedia:
-                      setAutoDisplaySensitiveMedia === "true",
-                    setFilterIncludeMedia: setFilterIncludeMedia === "true"
-                  })
-                }
-              }
-            })
-
-          util.consoleLog("Set timelines:", timelineDataList)
-          main()
-        }
+        () => document.querySelectorAll<HTMLElement>(querySelector.quaryProgressbar),
+        () => mainProcess()
       )
   )
-}
-
-function main() {
-  util.consoleLog("main process strat......")
-
-  timerDisplaySensitiveMedia = setInterval(() => {
-    timelineDataList.forEach((timelineData) => {
-      const cell = new Cell(timelineData)
-      const optionMenu = new OptionMenu(timelineData)
-      const filter = new Filter(timelineData)
-
-      cell.main()
-      optionMenu.main()
-      filter.main()
-    }, 1000)
-  })
 }
