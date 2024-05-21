@@ -18,22 +18,19 @@ export default class Filter {
     this.timelineType = timelineType
     this.settings = settings
 
-    if (this.timelineType !== "tweet") {
-      return
-    }
-
-    const target = this.timelineNode.querySelector("section[role='region'] > div.css-175oi2r > div")
-    if (target) {
-      this.observer.observe(target, {
+    const timelineList = this.timelineNode.querySelector(querySelector.quaryTimelineList)
+    if (timelineList) {
+      this.observer.observe(timelineList, {
         childList: true
       })
-      this.main()
     }
+    this.main()
   }
 
   private main() {
-    consoleLog(`fillter process start`)
-
+    if (this.timelineType !== "tweet") {
+      return
+    }
     if (!this.settings.getEnableFillterMedia()) {
       return
     }
@@ -51,16 +48,10 @@ export default class Filter {
         const tweetDetail = tweetArticle.querySelector<HTMLElement>(
           querySelector.quaryTweetDetail
         )
-
-        if (tweetDetail?.children && tweetDetail?.children.length <= 3) {
+        if (tweetDetail === null) {
           tweetArticle.hidden = true
-        } else {
-          const tweetMedia = tweetDetail?.querySelector("div[aria-labelledby]")
-          if (!tweetMedia) {
-            tweetArticle.hidden = true
-          }
+          tweetArticle.style.display = 'none'
         }
       })
-
   }
 }

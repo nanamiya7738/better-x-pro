@@ -18,22 +18,19 @@ export default class Cell {
     this.timelineType = timelineType
     this.settings = settings
 
-    if (this.timelineType === "other") {
-      return
-    }
-
-    const target = this.timelineNode.querySelector("section[role='region'] > div.css-175oi2r > div")
-    if (target) {
-      this.observer.observe(target, {
+    const timelineList = this.timelineNode.querySelector(querySelector.quaryTimelineList)
+    if (timelineList) {
+      this.observer.observe(timelineList, {
         childList: true
       })
-      this.main()
     }
+    this.main()
   }
 
   private main() {
-    consoleLog(`cell process start`)
-
+    if (this.timelineType !== "tweet") {
+      return
+    }
     if (!this.settings.getEnableAutoDisplay()) {
       return
     }
@@ -46,8 +43,7 @@ export default class Cell {
     this.timelineNode
       .querySelectorAll<HTMLElement>(`${querySelector.quarySensitiveContent}`)
       .forEach((val) => {
-        const item = val.children.item(1) as HTMLElement
-        item.click()
+        val.click()
       })
   }
 }

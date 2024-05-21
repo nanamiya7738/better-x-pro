@@ -49,7 +49,8 @@ export default class Timeline {
     }
 
     private setOption() {
-        this.timelineNode.querySelectorAll<HTMLDivElement>("div.r-18u37iz > div.r-obd0qt.r-1777fci div[role='button']").forEach(button => {
+        const menuButtonList = this.timelineNode.querySelectorAll<HTMLDivElement>(querySelector.quaryRowOptionButton)
+        menuButtonList.forEach(button => {
             button.addEventListener("click", () => {
                 setTimeout(() => this.setRowOptionMenu(), 1000)
             })

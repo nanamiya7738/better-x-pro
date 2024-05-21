@@ -1,4 +1,4 @@
-export type TimelineType = "tweet" | "notification" | "other"
+export type TimelineType = "tweet" | "notification" | "list" | "directMessage" | "other"
 
 export interface TimerData {
   timer: NodeJS.Timeout

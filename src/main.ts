@@ -6,9 +6,13 @@ const timelineList: Timeline[] = []
 let url = ""
 let preActiveElement: Element
 
+const observer = new MutationObserver(records => {
+  setTimelineData()
+})
+
 url = window.location.href
 checkPageReload()
-setTimelineData()
+setTimelineDataList()
 
 function checkPageReload() {
   setInterval(() => {
@@ -22,7 +26,7 @@ function checkReload() {
     util.consoleLog("main process stop and reload timeline")
 
     clearTimelineData()
-    setTimelineData()
+    setTimelineDataList()
     url = window.location.href
   }
 }
@@ -39,31 +43,39 @@ function clearTimelineData() {
   timelineList.splice(0, timelineList.length)
 }
 
-function setTimelineData() {
-  const mainProcess = () => {
-    document.querySelectorAll<HTMLElement>(querySelector.quaryTimeline)
-      ?.forEach((timeline, i) => {
-        const timelineDetail = timeline.children.item(0)
-        const timelineHeadermainTitle = timelineDetail?.children
-          .item(0)?.querySelector("div[data-testid='root'] h1 > span")
-        const timelineHeadersubTitle = timelineDetail?.children
-          .item(0)?.querySelector("div[data-testid='root'] h2 > span > span")
-
-        const mainTitle = timelineHeadermainTitle?.textContent
-        const subTitle = timelineHeadersubTitle?.textContent
-        if (mainTitle && subTitle) {
-          timelineList.push(new Timeline(mainTitle, subTitle, timeline))
-        }
-      })
-    util.consoleLog("main process strat......")
-  }
-
+function setTimelineDataList() {
   util.startProcessAfterCreateElement(
     () => document.querySelectorAll<HTMLElement>(querySelector.quaryTimeline),
     () =>
       util.startProcessAfterRemoveElement(
         () => document.querySelectorAll<HTMLElement>(querySelector.quaryProgressbar),
-        () => mainProcess()
+        () => setTimelineData()
       )
   )
+}
+
+function setTimelineData() {
+  document.querySelectorAll<HTMLElement>(querySelector.quaryTimeline)
+    ?.forEach((timeline, i) => {
+      const timelineDetail = timeline.children.item(0)
+      const timelineHeadermainTitle = timelineDetail?.children
+        .item(0)?.querySelector("div[data-testid='root'] h1 > span")
+      const timelineHeadersubTitle = timelineDetail?.children
+        .item(0)?.querySelector("div[data-testid='root'] h2 > span > span")
+
+      const mainTitle = timelineHeadermainTitle?.textContent
+      const subTitle = timelineHeadersubTitle?.textContent
+      if (mainTitle && subTitle) {
+        timelineList.push(new Timeline(mainTitle, subTitle, timeline))
+
+        const timelineHeader = timeline.querySelector(querySelector.quaryTimelineSubHeader)
+        if (timelineHeader) {
+          observer.observe(timelineHeader, {
+            childList: true
+          })
+        }
+      }
+    })
+
+  util.consoleLog("main process strat......")
 }
